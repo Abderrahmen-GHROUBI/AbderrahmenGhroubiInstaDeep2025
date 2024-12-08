@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: 
+    ports:
+      - "8000:8000"  
+    environment:
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_SERVER=${DB_SERVER}
+      - DB_NAME=${DB_NAME}
+      - DB_DRIVER=${DB_DRIVER}
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+    command: ["bash", "-c", "python db-setup.py && python main.py"]
+
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: sqlserver_container
+    ports:
+      - "1433:1433"  
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - sql_data:/var/opt/mssql
+
+volumes:
+  sql_data:
